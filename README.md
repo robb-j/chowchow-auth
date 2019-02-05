@@ -50,6 +50,16 @@ The strategies are based on authenticating the clients email and then signing a
 [jwt](https://jwt.io/) with that email hashed in it.
 Emails are only ever processed during authentication, then the hash is used after that.
 
+### Authentication Modes
+
+Each strategy works differently but they accept a `?mode=` query parameter when starting.
+This mode configures when happens when the authentication finishes.
+There are currently three authentication modes:
+
+- `cookie` – This method redirects the client back to `loginRedir` and sets the authentication as a cookie, useful for server rendered apps.
+- `redir` – This method redirects the client back to `loginRedir`
+- `token` – This method returns the user to a JSON page with the token in it, for development.
+
 ### Configuration
 
 There are a few config variables to customise how the module works.
@@ -63,16 +73,6 @@ And there are optional configurations:
 - `endpointPrefix` – Where to put the authentication endpoints under (default: `/auth`)
 - `cookieName` – What to call the cookie that is set, (default: `access_token`)
 - `whitelist` – A whitelist of emails that can be authenticated, (default: `[]`)
-
-### Authentication Modes
-
-Each strategy works differently but they accept a `?mode=` query parameter when starting.
-This mode configures when happens when the authentication finishes.
-There are currently three authentication modes:
-
-- `cookie` – This method redirects the client back to `loginRedir` and sets the authentication as a cookie, useful for server rendered apps.
-- `redir` – This method redirects the client back to `loginRedir`
-- `token` – This method returns the user to a JSON page with the token in it, for development.
 
 ### Strategies
 
