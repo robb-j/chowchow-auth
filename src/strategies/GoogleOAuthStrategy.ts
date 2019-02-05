@@ -1,6 +1,5 @@
 import https from 'https'
 import { BaseContext } from '@robb_j/chowchow'
-import { google } from 'googleapis'
 import { OAuth2Client } from 'google-auth-library'
 import { Application } from 'express'
 import { join } from 'path'
@@ -22,12 +21,11 @@ export class GoogleOAuthStrategy implements AuthStrategy {
   }
 
   setupStrategy(): void | Promise<void> {
-    this.client = new google.auth.OAuth2(
+    this.client = new OAuth2Client(
       process.env.GOOGLE_OAUTH_CLIENT_ID!,
       process.env.GOOGLE_OAUTH_CLIENT_SECRET!,
       this.auth.makeAbsoluteLink('google', 'callback')
     )
-    google.options({ auth: this.client })
 
     const base = join(this.auth.endpointPrefix, 'google')
 
