@@ -6,6 +6,7 @@ import {
 
 import { AuthModule, AuthContext } from './AuthModule'
 import { SendgridStrategy } from './strategies/SendgridStrategy'
+import { GoogleOAuthStrategy } from './strategies/GoogleOAuthStrategy'
 
 type Context = BaseContext & JsonEnvelopeContext & AuthContext
 // type Context = BaseContext & AuthContext
@@ -14,17 +15,18 @@ type Context = BaseContext & JsonEnvelopeContext & AuthContext
     .use(new JsonEnvelopeModule({ handleErrors: true }))
     .use(
       new AuthModule(
+        {
+          loginRedir: '/',
+          publicUrl: 'http://localhost:3000'
+        },
         [
           new SendgridStrategy({
             fromEmail: 'noreply@r0b.io',
-            publicUrl: 'http://localhost:3000',
             emailSubject: 'Your Login',
             emailBody: link => `Here is your r0b.io login link: ${link}`
-          })
-        ],
-        {
-          loginRedir: '/'
-        }
+          }),
+          new GoogleOAuthStrategy()
+        ]
       )
     )
 

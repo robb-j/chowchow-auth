@@ -4,6 +4,7 @@ import { Application } from 'express'
 import cookieParser from 'cookie-parser'
 import jwtParser from 'express-jwt'
 import { JwtUtils } from './JwtUtils'
+import { join } from 'path'
 
 type Context = BaseContext & JsonEnvelopeContext
 
@@ -12,6 +13,7 @@ export type AuthConfig = {
   cookieName?: string
   whitelist?: string[]
   loginRedir: string
+  publicUrl: string
   // jwtSecret: string
   // cookieSecret?: string
 }
@@ -74,7 +76,7 @@ export class AuthModule implements Module {
     return (this.config.whitelist || []).map(e => e.toLowerCase().trim())
   }
 
-  constructor(strategies: AuthStrategy[], config: AuthConfig) {
+  constructor(config: AuthConfig, strategies: AuthStrategy[]) {
     this.strategies = strategies
     this.config = config
     for (let strategy of this.strategies) strategy.auth = this
@@ -154,12 +156,22 @@ export class AuthModule implements Module {
     })
 
     if (mode === 'cookie') {
-      ctx.res.cookie(this.cookieName, newToken, { signed: true })
+      ctx.res.cookie(this.cookieName, newToken, {
+        signed: true,
+        httpOnly: true
+      })
       ctx.res.redirect(302, this.config.loginRedir)
     } else if (mode === 'redir') {
       ctx.res.redirect(302, `${this.config.loginRedir}?token=${newToken}`)
     } else {
       this.sendData(ctx, { token: newToken })
     }
+  }
+
+  makeAbsoluteLink(...paths: string[]) {
+    return (
+      this.config.publicUrl.replace(/\/$/, '') +
+      join(this.endpointPrefix, ...paths)
+    )
   }
 }

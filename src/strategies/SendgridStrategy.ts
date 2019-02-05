@@ -9,7 +9,6 @@ export const isEmail = (value: string) => /^\S+@\S+$/i.test(value)
 
 export type SendgridConfig = {
   fromEmail: string
-  publicUrl: string
   emailSubject: string
   emailBody: (link: string) => string
 }
@@ -17,17 +16,7 @@ export type SendgridConfig = {
 export class SendgridStrategy implements AuthStrategy {
   auth: AuthModule = null as any
 
-  get routeBase() {
-    return join(this.auth.endpointPrefix, 'email')
-  }
-
   constructor(public config: SendgridConfig) {}
-
-  makeAbsoluteLink(...paths: string[]) {
-    return (
-      this.config.publicUrl.replace(/\/$/, '') + join(this.routeBase, ...paths)
-    )
-  }
 
   checkEnvironment() {
     let missing = ['SENDGRID_TOKEN'].filter(n => !process.env[n])
@@ -39,25 +28,21 @@ export class SendgridStrategy implements AuthStrategy {
   setupStrategy() {
     sendgrid.setApiKey(process.env.SENDGRID_TOKEN as string)
 
+    const base = join(this.auth.endpointPrefix, 'email')
+
     this.auth.app.applyRoutes((app, r) => {
-      app.get(
-        join(this.routeBase, 'request'),
-        r(async ctx => this.requestRoute(ctx))
-      )
-      app.get(
-        join(this.routeBase, 'check'),
-        r(async ctx => this.checkRoute(ctx))
-      )
+      app.get(join(base, 'request'), r(ctx => this.requestRoute(ctx)))
+      app.get(join(base, 'check'), r(ctx => this.checkRoute(ctx)))
     })
   }
   clearStrategy() {}
   extendExpress(server: Application) {}
 
   protected async requestRoute(ctx: BaseContext) {
+    const { utils } = this.auth
+
     let mode = this.auth.validateRequestMode(ctx.req.query.mode)
     let email = this.auth.validateEmail(ctx.req.query.email)
-
-    const { utils } = this.auth
 
     const auth = utils.jwtSign({
       sub: utils.hashEmail(email),
@@ -65,7 +50,7 @@ export class SendgridStrategy implements AuthStrategy {
       mode: mode
     })
 
-    const link = this.makeAbsoluteLink(`check?token=${auth}`)
+    const link = this.auth.makeAbsoluteLink('email', `check?token=${auth}`)
 
     try {
       await sendgrid.send({
