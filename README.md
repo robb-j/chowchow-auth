@@ -1,6 +1,6 @@
 # Chow Chow | Authentication
 
-Bootstraps authentication for [chowchow](https://github.com/robb-j/chowchow), with strategies to verify clients using an email or through google OAuth2.
+Bootstraps authentication for [chowchow](https://github.com/robb-j/chowchow), with strategies to verify clients using an email or Google oauth2.
 
 ```ts
 import { ChowChow, BaseContext } from '@robb_j/chowchow'
@@ -19,7 +19,7 @@ type Context = BaseContext & AuthContext
 
   // Apply the module
   chow.use(
-    new AuthModule({ loginRedir: '/', publicUrl: '' }, [
+    new AuthModule({ loginRedir: '/', publicUrl: 'https://fancydomain.io' }, [
       new GoogleOAuthStrategy(),
       new SendgridStrategy({
         fromEmail: 'noreploy@mydomain.io',
@@ -34,7 +34,7 @@ type Context = BaseContext & AuthContext
   chow.applyRoutes((app, r) => {
     app.get('/', r(ctx => {
       if (!ctx.jwt) throw new Error('Bad Auth')
-      ctx.res.send('Welcome back!')
+      ctx.res.send(`Welcome back! ${ctx.sub}`)
     }))
   })
 
@@ -43,12 +43,22 @@ type Context = BaseContext & AuthContext
 })()
 ```
 
-## Authentication description
+## Overview
 
-This module adds endpoints to provide authentication based on the strategies your provide.
+This module adds endpoints to authenticate clients based on the strategies you provide.
 The strategies are based on authenticating the client's email and then signing a
 [jwt](https://jwt.io/) with that email hashed in it.
 Emails are only ever processed during authentication, then the hash is used after that.
+
+You need to set 2 [environment variables](https://nodejs.org/api/process.html#process_process_env)
+by default:
+
+- `JWT_SECRET` – A secret value used to sign json web tokens
+- `COOKIE_SECERT` – A secret value used to sign cookies
+
+Use something like [dotenv](https://npmjs.org/package/dotenv) to load environment variables in from a `.env` file
+and `.gitignore` that `.env` file from your repository.
+If a required variable isn't set, the chowchow will fail to start.
 
 ### Authentication modes
 
@@ -92,10 +102,7 @@ And there are optional configurations:
 
 ### Strategies
 
-Strategies define endpoints to authenticate the client and may have required
-[environment variables](https://nodejs.org/api/process.html#process_process_env) be set.
-If a required variable isn't set, the chowchow will fail to start.
-Use something like [dotenv](https://npmjs.org/package/dotenv) to load environment variables in from a `.env` file.
+Strategies define endpoints to authenticate the client and may have required environment variables be set.
 
 #### Google OAuth
 
@@ -129,7 +136,7 @@ This strategy requires one environment variable is set `SENDGRID_TOKEN`, which i
 
 There is some required config:
 
-- `fromEmail` – Where emails will appear to come from, e.g. `noreploy@fancydomain.io`
+- `fromEmail` – Where emails will appear to come from, e.g. `noreply@fancydomain.io`
 - `emailSubject` – The subject of the email to be sent for logins
 - `emailBody` – The contents of the email, this one is a function which takes the email and login link and should return a html body
 
