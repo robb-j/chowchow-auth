@@ -4,8 +4,6 @@
   "description": "An authentication module for chowchow",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "author": "Rob Anderson (https://r0b.io)",
-  "license": "MIT",
   "scripts": {
     "build": "tsc",
     "lint": "npx tsc --noEmit",
@@ -15,6 +13,16 @@
     "test": "jest",
     "dev": "node -r ts-node/register -r dotenv/config src/test.ts"
   },
+  "keywords": [
+    "chowchow",
+    "typescript",
+    "authentication",
+    "sendgrid",
+    "google-oauth"
+  ],
+  "author": "Rob Anderson (https://r0b.io)",
+  "repository": "robb-j/chowchow-auth",
+  "license": "MIT",
   "dependencies": {
     "@sendgrid/mail": "^6.3.1",
     "cookie-parser": "^1.4.3",
