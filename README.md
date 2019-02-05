@@ -53,19 +53,19 @@ Emails are only ever processed during authentication, then the hash is used afte
 ### Authentication Modes
 
 Each strategy works differently but they accept a `?mode=` query parameter when starting.
-This mode configures when happens when the authentication finishes.
-There are currently three authentication modes:
+This mode configures how the client is provided with the authorization.
+There are currently three modes:
 
-- `cookie` – This method redirects the client back to `loginRedir` and sets the authentication as a cookie, useful for server rendered apps.
-- `redir` – This method redirects the client back to `loginRedir`
-- `token` – This method returns the user to a JSON page with the token in it, for development.
+- `cookie` – Redirect the client back to `loginRedir` and set the authorization as a cookie, useful for server rendered apps.
+- `redir` – Redirect the client back to `loginRedir` with `?token=...` set, useful for webapps
+- `token` – Return the client to a JSON page with the token in it, useful for development.
 
 ### Configuration
 
-There are a few config variables to customise how the module works.
-These are the required variables:
+There are a few variables to customise how the module works.
+These are the required ones:
 
-- `loginRedir` – Where the user will go after authenticating e.g. `/home`
+- `loginRedir` – Where the client will go after authenticating, e.g. `/home`
 - `publicUrl` – The public facing url of this app, e.g. `https://myapp.io`
 
 And there are optional configurations:
@@ -76,14 +76,16 @@ And there are optional configurations:
 
 ### Strategies
 
-Strategies define their own endpoints to perform the authentication and may have required
+Strategies define endpoints to authenticate the client and may have required
 [environment variables](https://nodejs.org/api/process.html#process_process_env) be set.
+If a required variable isn't set, the chowchow will fail to start.
 Use something like [dotenv](https://npmjs.org/package/dotenv) to load environment variables in from a `.env` file.
 
 #### Google OAuth
 
-This strategy adds endpoints to authenticate a client via Google OAuth2.
-One endpoint redirects to google to authenticate and the other validates the redirect back and provides authorization.
+This strategy authenticates a client via Google OAuth2.
+It adds an endpoint to redirect to google to authenticate the client
+and the another to validate the redirect back and provide authorization.
 By default these endpoints will look like:
 
 - `GET: /auth/google/request?mode=token`
@@ -91,7 +93,8 @@ By default these endpoints will look like:
 
 > Unless your set `endpointPrefix` when creating your AuthModule
 
-You will need to register your url against your credentials at [console.developers.google.com/apis/credentials](https://console.developers.google.com/apis/credentials).
+You will need to register your callback url against your credentials in the
+[Google console](https://console.developers.google.com/apis/credentials).
 If you app was on `fancydomain.io`, you'd need to add `https://fancydomain.io/auth/google/callback`.
 
 This strategy requires two environment variables are set,
@@ -102,11 +105,11 @@ which you get when creating your oauth app with Google.
 
 #### Sendgrid Auth
 
-This strategy adds endpoints to authenticate the user by sending them an email.
-One endpoint sends them an email (through sendgrid) with a verification link in it.
-The second endpoint is where the verification link goes and provides authorization.
+This strategy authenticates the client by sending them an email.
+It adds an endpoint to send them an email (via sendgrid) with a verification link in it.
+The second endpoint handles the verification link and provides the client with an authorization.
 
-This strategy requires one environment variable is set `SENDGRID_TOKEN`, which is used to send emails through the `@sendgrid/main` package.
+This strategy requires one environment variable is set `SENDGRID_TOKEN`, which is used to send emails through the `@sendgrid/main` package. You can generate one on the sendgrid website.
 
 There is some required config:
 
