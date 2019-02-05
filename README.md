@@ -107,7 +107,7 @@ By default these endpoints will look like:
 - `GET: /auth/google/request?mode=token`
 - `GET: /auth/google/callback?code=...&state=...`
 
-> Unless your set `endpointPrefix` when creating your AuthModule
+> Unless you set `endpointPrefix` when creating your AuthModule
 
 You will need to register your callback url against your credentials in the
 [Google console](https://console.developers.google.com/apis/credentials).
@@ -138,7 +138,7 @@ The two endpoints added are:
 - `GET: /auth/email/request?email=test@gmail.com&mode=token`
 - `GET: /auth/email/check?token=...`
 
-> Unless your set `endpointPrefix` when creating your AuthModule
+> Unless you set `endpointPrefix` when creating your AuthModule
 
 ## Dev Commands
 
