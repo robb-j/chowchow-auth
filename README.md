@@ -50,7 +50,7 @@ The strategies are based on authenticating the client's email and then signing a
 [jwt](https://jwt.io/) with that email hashed in it.
 Emails are only ever processed during authentication, then the hash is used after that.
 
-### Authentication modes
+## Authentication modes
 
 Each strategy works differently but they accept a `?mode=` query parameter when starting.
 This mode configures how the client is provided with the authorization.
@@ -76,7 +76,7 @@ That payload is then inserted into chowchow's Context.
 
 > See [JwtUtils#jwtParserConfig](/src/JwtUtils.ts#L14) for more info
 
-### Configuration
+## Configuration
 
 You need to set 2 [environment variables](https://nodejs.org/api/process.html#process_process_env):
 
@@ -99,11 +99,11 @@ And these are optional values:
 - `cookieName` – What to call the cookie that is set, (default: `access_token`)
 - `whitelist` – A whitelist of emails that can be authenticated, (default: `[]`)
 
-### Strategies
+## Strategies
 
 Strategies define endpoints to authenticate the client and may have required environment variables be set.
 
-#### Google OAuth
+### Google OAuth
 
 This strategy authenticates a client via Google OAuth2.
 It adds an endpoint to redirect to google to authenticate the client
@@ -125,7 +125,7 @@ which you get when creating your oauth app with Google.
 - `GOOGLE_OAUTH_CLIENT_ID`
 - `GOOGLE_OAUTH_CLIENT_SECRET`
 
-#### Sendgrid Auth
+### Sendgrid Auth
 
 This strategy authenticates the client by sending them an email.
 It adds an endpoint to send them an email (via sendgrid) with a verification link in it.
