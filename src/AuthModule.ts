@@ -9,31 +9,31 @@ import { join } from 'path'
 type Context = BaseContext & JsonEnvelopeContext
 
 export type AuthConfig = {
+  loginRedir: string
+  publicUrl: string
   endpointPrefix?: string
   cookieName?: string
   whitelist?: string[]
-  loginRedir: string
-  publicUrl: string
-  // jwtSecret: string
-  // cookieSecret?: string
 }
 
+/** An authentication jwt */
 export type AuthJwt = {
   sub: string
-  typ: string
 }
 
+/** The AuthModule's extension to the module */
 export type AuthContext = {
   jwt: AuthJwt | null
 }
 
-export enum StrategyType {
-  sendgridEmail,
-  googleOAuth
-}
+/** The different authentication modes
+- cookie: Returns the client to `loginRedir` with a Set-Cookie
+- redir:  Redirect's the the client to `loginRedir` with ?token= set
+- token:  Output's the token in the response body (for dev really)
+*/
+export type AuthMode = 'cookie' | 'redir' | 'token'
 
-export type AuthMode = 'cookie' | 'token' | 'redir'
-
+/** An interface for an authentication strategy */
 export interface AuthStrategy {
   auth: AuthModule
   checkEnvironment(): void
@@ -42,36 +42,23 @@ export interface AuthStrategy {
   extendExpress(server: Application): void
 }
 
+/** a very simple check for an email */
 export const isEmail = (value: string) => /^\S+@\S+$/i.test(value)
 
-// class GoogleOAuthStrategy implements AuthStrategy {
-//   constructor(public secret: string) {}
-//
-//   checkEnvironment() {}
-//   setupStrategy() {}
-//   clearStrategy() {}
-//   extendExpress() {}
-// }
-
+/** A ChowChow module to add authentication endpoints
+  and add an auth jwt to the context */
 export class AuthModule implements Module {
   strategies: AuthStrategy[]
   config: AuthConfig
   app: ChowChow = null as any
   utils: JwtUtils
 
-  get jwtSecret() {
-    return process.env.JWT_SECRET as string
-  }
-  get cookieSecret() {
-    return process.env.COOKIE_SECRET as string
-  }
   get endpointPrefix() {
     return this.config.endpointPrefix || '/auth'
   }
   get cookieName() {
     return this.config.cookieName || 'access_token'
   }
-
   get whitelist() {
     return (this.config.whitelist || []).map(e => e.toLowerCase().trim())
   }
@@ -80,9 +67,14 @@ export class AuthModule implements Module {
     this.strategies = strategies
     this.config = config
     for (let strategy of this.strategies) strategy.auth = this
-    this.utils = new JwtUtils(this.jwtSecret, this.cookieName)
+    this.utils = new JwtUtils(process.env.JWT_SECRET!, this.cookieName)
   }
 
+  //
+  // Module implementation
+  //
+
+  /** Module#checkEnvironment() */
   checkEnvironment() {
     let missing = ['JWT_SECRET', 'COOKIE_SECRET'].filter(n => !process.env[n])
 
@@ -93,68 +85,48 @@ export class AuthModule implements Module {
     for (let strategy of this.strategies) strategy.checkEnvironment()
   }
 
+  /** Module#setupModule() */
   setupModule() {
     for (let strategy of this.strategies) strategy.setupStrategy()
   }
 
+  /** Module#clearModule() */
   clearModule() {
     for (let strategy of this.strategies) strategy.clearStrategy()
   }
 
+  /** Module#extendExpress(app) */
   extendExpress(server: Application) {
     server.use(jwtParser(this.utils.jwtParserConfig))
-    server.use(cookieParser(this.cookieSecret))
+    server.use(cookieParser(process.env.COOKIE_SECRET!))
     for (let strategy of this.strategies) strategy.extendExpress(server)
   }
 
+  /** Module#extendEndpointContext(ctx) */
   extendEndpointContext(ctx: BaseContext): AuthContext {
-    const emptyCtx = { jwt: null }
-
     // Don't pass if not set
     let jwt = (ctx.req as any).user as AuthJwt
 
-    if (!jwt) return emptyCtx
-
-    // Don't pass if not an auth token
-    if (jwt.typ !== 'auth') return emptyCtx
+    // Don't pass the jwt ctx  if its not a valid auth
+    if (!jwt || (jwt as any).typ !== 'auth') return { jwt: null }
 
     // Pass the auth token
     return { jwt }
   }
 
-  sendData(ctx: any, payload: any) {
-    let { sendData, res } = ctx as Context
-    if (sendData) sendData(payload)
-    else res.send(payload)
-  }
+  //
+  // Strategy Helpers
+  //
 
-  validateRequestMode(mode: any): AuthMode {
-    if (!['cookie', 'token', 'redir'].includes(mode)) {
-      throw new Error(`Bad 'mode'`)
-    }
-    return mode
-  }
-
-  validateEmail(email: any, checkWhitelist = true) {
-    if (typeof email !== 'string' || !isEmail(email)) {
-      throw new Error(`Bad 'email'`)
-    }
-
-    if (checkWhitelist) {
-      if (this.whitelist.length > 0 && !this.whitelist.includes(email)) {
-        throw new Error(`Bad 'email'`)
-      }
-    }
-
-    return email.trim().toLowerCase()
-  }
-
+  /** Hook for strategies to finish an authentication */
   finishAuth(ctx: BaseContext, emailHash: string, mode: AuthMode) {
+    // Create an authentication token
     const newToken = this.utils.jwtSign({
       sub: emailHash,
       typ: 'auth'
     })
 
+    // Proceed baed on the mode passed
     if (mode === 'cookie') {
       ctx.res.cookie(this.cookieName, newToken, {
         signed: true,
@@ -168,6 +140,40 @@ export class AuthModule implements Module {
     }
   }
 
+  /** Helper method for strategies to send a json response */
+  sendData(ctx: any, payload: any) {
+    let { sendData, res } = ctx as Context
+    if (sendData) sendData(payload)
+    else res.send(payload)
+  }
+
+  /** Helper method for strategies to validate an authentication mode */
+  validateAuthMode(mode: any): AuthMode {
+    if (!['cookie', 'token', 'redir'].includes(mode)) {
+      throw new Error(`Bad 'mode'`)
+    }
+    return mode
+  }
+
+  /** Helper method for strategies to validate an email */
+  validateEmail(email: any) {
+    // Check its an allowed email
+    if (typeof email !== 'string' || !isEmail(email)) {
+      throw new Error(`Bad 'email'`)
+    }
+
+    // Remove whitespace and lower-case the email
+    email = email.trim().toLowerCase()
+
+    // If using a whitelist, check its allowed
+    if (this.whitelist.length > 0 && !this.whitelist.includes(email)) {
+      throw new Error(`Bad 'email'`)
+    }
+
+    return email
+  }
+
+  /** Helper for strategies to form a full public url */
   makeAbsoluteLink(...paths: string[]) {
     return (
       this.config.publicUrl.replace(/\/$/, '') +

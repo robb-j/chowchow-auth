@@ -10,24 +10,20 @@ import { GoogleOAuthStrategy } from './strategies/GoogleOAuthStrategy'
 
 type Context = BaseContext & JsonEnvelopeContext & AuthContext
 // type Context = BaseContext & AuthContext
+
+// App entrypoint
 ;(async () => {
   let chow = ChowChow.create<Context>()
     .use(new JsonEnvelopeModule({ handleErrors: true }))
     .use(
-      new AuthModule(
-        {
-          loginRedir: '/',
-          publicUrl: 'http://localhost:3000'
-        },
-        [
-          new SendgridStrategy({
-            fromEmail: 'noreply@r0b.io',
-            emailSubject: 'Your Login',
-            emailBody: link => `Here is your r0b.io login link: ${link}`
-          }),
-          new GoogleOAuthStrategy()
-        ]
-      )
+      new AuthModule({ loginRedir: '/', publicUrl: 'http://localhost:3000' }, [
+        new SendgridStrategy({
+          fromEmail: 'noreply@r0b.io',
+          emailSubject: 'Your Login',
+          emailBody: (link, email) => `Here is your r0b.io login link: ${email}`
+        }),
+        new GoogleOAuthStrategy()
+      ])
     )
 
   chow.applyRoutes((app, r) => {

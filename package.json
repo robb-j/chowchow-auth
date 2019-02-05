@@ -1,8 +1,7 @@
 {
-  "name": "create-robbj-ts-node",
+  "name": "@robb_j/chowchow-auth",
   "version": "0.0.0",
-  "private": true,
-  "description": "",
+  "description": "An authentication module for chowchow",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "author": "Rob Anderson (https://r0b.io)",
@@ -13,28 +12,8 @@
     "coverage": "jest --coverage",
     "preversion": "npm test -s && npm run build && git add dist",
     "prettier": "prettier --write '**/*.{js,ts,tsx,json,css,md}'",
-    "start": "node -r dotenv/config dist/index.js",
     "test": "jest",
     "dev": "node -r ts-node/register -r dotenv/config src/test.ts"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "*.{js,ts,tsx,json,css,md}": [
-      "prettier --write",
-      "git add"
-    ]
-  },
-  "jest": {
-    "preset": "ts-jest",
-    "testEnvironment": "node",
-    "testPathIgnorePatterns": [
-      "/node_modules/",
-      "/dist/"
-    ]
   },
   "dependencies": {
     "@sendgrid/mail": "^6.3.1",
@@ -65,5 +44,24 @@
     "ts-jest": "^23.10.5",
     "ts-node": "^7.0.1",
     "typescript": "^3.2.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,ts,tsx,json,css,md}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/dist/"
+    ]
   }
 }
