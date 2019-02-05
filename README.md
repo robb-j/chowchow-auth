@@ -66,13 +66,15 @@ Once authenticated, a client is provided with an authorization based on their `m
 This module adds a `jwt` option to the context with that authorization in it.
 It will automatically look for it on the request based on:
 
-1. It will look for a signed cookie named `access_token`, or whatever you passed to `cookieName`
-2. It will look for a `Authorization: bearer ...` header and extract the token from that
-3. It will look for `?token=...` query parameter
+1. A signed cookie named `access_token`, or whatever you passed to `cookieName`
+2. An `Authorization: bearer ...` header and extract the token from that
+3. A `?token=...` query parameter
 
 If it finds one of those, it will verify it was a jwt signed by our secret
 and that it is an object with `{ typ: auth }`.
 That payload is then inserted into chowchow's Context.
+
+> See JwtUtils#jwtParserConfig for more info
 
 ### Configuration
 
