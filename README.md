@@ -46,11 +46,11 @@ type Context = BaseContext & AuthContext
 ## Authentication description
 
 This module adds endpoints to provide authentication based on the strategies your provide.
-The strategies are based on authenticating the clients email and then signing a
+The strategies are based on authenticating the client's email and then signing a
 [jwt](https://jwt.io/) with that email hashed in it.
 Emails are only ever processed during authentication, then the hash is used after that.
 
-### Authentication Modes
+### Authentication modes
 
 Each strategy works differently but they accept a `?mode=` query parameter when starting.
 This mode configures how the client is provided with the authorization.
@@ -59,6 +59,20 @@ There are currently three modes:
 - `cookie` – Redirect the client back to `loginRedir` and set the authorization as a cookie, useful for server rendered apps.
 - `redir` – Redirect the client back to `loginRedir` with `?token=...` set, useful for webapps
 - `token` – Return the client to a JSON page with the token in it, useful for development.
+
+## Using the authorization
+
+Once authenticated, a client is provided with an authorization based on their `mode`.
+This module adds a `jwt` option to the context with that authorization in it.
+It will automatically look for it on the request based on:
+
+1. It will look for a signed cookie named `access_token`, or whatever you passed to `cookieName`
+2. It will look for a `Authorization: bearer ...` header and extract the token from that
+3. It will look for `?token=...` query parameter
+
+If it finds one of those, it will verify it was a jwt signed by our secret
+and that it is an object with `{ typ: auth }`.
+That payload is then inserted into chowchow's Context.
 
 ### Configuration
 
