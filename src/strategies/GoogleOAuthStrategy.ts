@@ -81,6 +81,8 @@ export class GoogleOAuthStrategy implements AuthStrategy {
 
       const email = await this.fetchProfile(accessToken)
 
+      this.auth.validateEmail(email)
+
       this.auth.finishAuth(ctx, this.auth.utils.hashEmail(email), mode)
     } catch (error) {
       throw new Error(error.message)
