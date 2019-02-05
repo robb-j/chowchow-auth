@@ -11,7 +11,7 @@
     "preversion": "npm test -s && npm run build && git add dist",
     "prettier": "prettier --write '**/*.{js,ts,tsx,json,css,md}'",
     "test": "jest",
-    "dev": "node -r ts-node/register -r dotenv/config src/test.ts"
+    "dev": "node -r ts-node/register -r dotenv/config src/experiment.ts"
   },
   "keywords": [
     "chowchow",
