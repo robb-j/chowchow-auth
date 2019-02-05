@@ -50,16 +50,6 @@ The strategies are based on authenticating the client's email and then signing a
 [jwt](https://jwt.io/) with that email hashed in it.
 Emails are only ever processed during authentication, then the hash is used after that.
 
-You need to set 2 [environment variables](https://nodejs.org/api/process.html#process_process_env)
-by default:
-
-- `JWT_SECRET` – A secret value used to sign json web tokens
-- `COOKIE_SECERT` – A secret value used to sign cookies
-
-Use something like [dotenv](https://npmjs.org/package/dotenv) to load environment variables in from a `.env` file
-and `.gitignore` that `.env` file from your repository.
-If a required variable isn't set, the chowchow will fail to start.
-
 ### Authentication modes
 
 Each strategy works differently but they accept a `?mode=` query parameter when starting.
@@ -77,24 +67,33 @@ This module adds a `jwt` option to the context with that authorization in it.
 It will automatically look for it on the request based on:
 
 1. A signed cookie named `access_token`, or whatever you passed to `cookieName`
-2. An `Authorization: bearer ...` header and extract the token from that
+2. An `Authorization: bearer ...` header
 3. A `?token=...` query parameter
 
 If it finds one of those, it will verify it was a jwt signed by our secret
 and that it is an object with `{ typ: auth }`.
 That payload is then inserted into chowchow's Context.
 
-> See JwtUtils#jwtParserConfig for more info
+> See [JwtUtils#jwtParserConfig](/src/JwtUtils.ts#L14) for more info
 
 ### Configuration
 
-There are a few variables to customise how the module works.
-These are the required ones:
+You need to set 2 [environment variables](https://nodejs.org/api/process.html#process_process_env):
+
+- `JWT_SECRET` – A secret value used to sign json web tokens
+- `COOKIE_SECERT` – A secret value used to sign cookies
+
+Use something like [dotenv](https://npmjs.org/package/dotenv) to load environment variables in from a `.env` file
+and `.gitignore` that `.env` file from your repository.
+If a required variable isn't set, the chowchow will fail to start.
+
+There are then values to be passed to `new AuthModule({ ... }, [])`,
+these are the required ones:
 
 - `loginRedir` – Where the client will go after authenticating, e.g. `/home`
 - `publicUrl` – The public facing url of this app, e.g. `https://myapp.io`
 
-And there are optional configurations:
+And these are optional values:
 
 - `endpointPrefix` – Where to put the authentication endpoints under (default: `/auth`)
 - `cookieName` – What to call the cookie that is set, (default: `access_token`)
