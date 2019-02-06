@@ -12,6 +12,7 @@ exports.isEmail = (value) => /^\S+@\S+$/i.test(value);
 /** A ChowChow module to add authentication endpoints
   and add an auth jwt to the context */
 class AuthModule {
+    /** Create a new AuthModule with config and strategies */
     constructor(config, strategies) {
         this.app = null;
         this.strategies = strategies;
@@ -20,14 +21,21 @@ class AuthModule {
             strategy.auth = this;
         this.utils = new JwtUtils_1.JwtUtils(process.env.JWT_SECRET, this.cookieName);
     }
+    /** What path to put strategy endpoints under (default: '/auth')*/
     get endpointPrefix() {
         return this.config.endpointPrefix || '/auth';
     }
+    /** What to set the cookie to (default: [])*/
     get cookieName() {
         return this.config.cookieName || 'access_token';
     }
+    /** Emails to whitelist for authentication (default: []) */
     get whitelist() {
         return (this.config.whitelist || []).map(e => e.toLowerCase().trim());
+    }
+    /** How long cookies last for, in milliseconds (default: 3 months) */
+    get cookieDuration() {
+        return this.config.cookieDuration || (365 / 4) * 24 * 60 * 60 * 1000;
     }
     //
     // Module implementation
@@ -53,8 +61,8 @@ class AuthModule {
     }
     /** Module#extendExpress(app) */
     extendExpress(server) {
-        server.use(express_jwt_1.default(this.utils.jwtParserConfig));
         server.use(cookie_parser_1.default(process.env.COOKIE_SECRET));
+        server.use(express_jwt_1.default(this.utils.jwtParserConfig));
         for (let strategy of this.strategies)
             strategy.extendExpress(server);
     }
@@ -82,7 +90,9 @@ class AuthModule {
         if (mode === 'cookie') {
             ctx.res.cookie(this.cookieName, newToken, {
                 signed: true,
-                httpOnly: true
+                httpOnly: true,
+                secure: ctx.req.protocol === 'https',
+                expires: new Date(Date.now() + this.cookieDuration)
             });
             ctx.res.redirect(302, this.config.loginRedir);
         }

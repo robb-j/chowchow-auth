@@ -19,7 +19,7 @@ class JwtUtils {
         return {
             secret: this.secret,
             credentialsRequired: false,
-            getToken: (req) => {
+            getToken: req => {
                 let { headers = {}, signedCookies = {}, query = {} } = req;
                 // Try a signed cookie
                 if (this.cookieName && signedCookies[this.cookieName]) {

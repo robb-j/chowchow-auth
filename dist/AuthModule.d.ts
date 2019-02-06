@@ -7,6 +7,7 @@ export declare type AuthConfig = {
     endpointPrefix?: string;
     cookieName?: string;
     whitelist?: string[];
+    cookieDuration?: number;
 };
 /** An authentication jwt */
 export declare type AuthJwt = {
@@ -39,9 +40,15 @@ export declare class AuthModule implements Module {
     config: AuthConfig;
     app: ChowChow;
     utils: JwtUtils;
+    /** What path to put strategy endpoints under (default: '/auth')*/
     readonly endpointPrefix: string;
+    /** What to set the cookie to (default: [])*/
     readonly cookieName: string;
+    /** Emails to whitelist for authentication (default: []) */
     readonly whitelist: string[];
+    /** How long cookies last for, in milliseconds (default: 3 months) */
+    readonly cookieDuration: number;
+    /** Create a new AuthModule with config and strategies */
     constructor(config: AuthConfig, strategies: AuthStrategy[]);
     /** Module#checkEnvironment() */
     checkEnvironment(): void;
