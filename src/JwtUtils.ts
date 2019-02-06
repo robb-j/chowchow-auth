@@ -15,7 +15,7 @@ export class JwtUtils {
     return {
       secret: this.secret,
       credentialsRequired: false,
-      getToken: (req: any) => {
+      getToken: req => {
         let { headers = {}, signedCookies = {}, query = {} } = req
 
         // Try a signed cookie
@@ -25,7 +25,7 @@ export class JwtUtils {
 
         // Try an auth header, "Authorization: Bearer $TOKEN"
         if ((headers.authorization || '').startsWith('Bearer ')) {
-          return headers.authorization.split(' ')[1]
+          return headers.authorization!.split(' ')[1]
         }
 
         // Try the query string, ?token=

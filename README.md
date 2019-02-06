@@ -98,6 +98,7 @@ And these are optional values:
 - `endpointPrefix` – Where to put the authentication endpoints under (default: `/auth`)
 - `cookieName` – What to call the cookie that is set, (default: `access_token`)
 - `whitelist` – A whitelist of emails that can be authenticated, (default: `[]`)
+- `cookieDuration` – How long an authorization cookie lasts for, in milliseconds (default: `3 months`)
 
 ## Strategies
 
