@@ -43,6 +43,17 @@ type Context = BaseContext & AuthContext
 })()
 ```
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Authentication modes](#authentication-modes)
+- [Using the authorization](#using-the-authorization)
+- [Configuration](#configuration)
+- [Strategies](#strategies)
+  - [Google OAuth](#google-oauth)
+  - [Sendgrid Auth](#sendgrid-auth)
+- [Dev Commands](#dev-commands)
+
 ## Overview
 
 This module adds endpoints to authenticate clients based on the strategies you provide.
