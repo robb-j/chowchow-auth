@@ -102,7 +102,7 @@ There are then values to be passed to `new AuthModule({ ... }, [])`,
 these are the required ones:
 
 - `loginRedir` – Where the client will go after authenticating, e.g. `/home`
-- `publicUrl` – The public facing url of this app, e.g. `https://myapp.io`
+- `publicUrl` – The public facing url of this app, e.g. `https://fancydomain.io`
 
 And these are optional values:
 
@@ -122,10 +122,10 @@ It adds an endpoint to redirect to google to authenticate the client
 and the another to validate the redirect back and provide authorization.
 By default these endpoints will look like:
 
-- `GET: /auth/google/request?mode=token`
-- `GET: /auth/google/callback?code=...&state=...`
-
 > Unless you set `endpointPrefix` when creating your AuthModule
+
+- `GET: /auth/google/request?mode=...`
+- `GET: /auth/google/callback?code=...&state=...`
 
 You will need to register your callback url against your credentials in the
 [Google console](https://console.developers.google.com/apis/credentials).
@@ -143,7 +143,7 @@ This strategy authenticates the client by sending them an email.
 It adds an endpoint to send them an email (via sendgrid) with a verification link in it.
 The second endpoint handles the verification link and provides the client with an authorization.
 
-This strategy requires one environment variable is set `SENDGRID_TOKEN`, which is used to send emails through the `@sendgrid/main` package. You can generate one on the sendgrid website.
+This strategy requires one environment variable is set `SENDGRID_TOKEN`, which is used to send emails through the `@sendgrid/mail` package. You can generate one on the sendgrid website.
 
 There is some required config:
 
@@ -153,10 +153,10 @@ There is some required config:
 
 The two endpoints added are:
 
-- `GET: /auth/email/request?email=test@gmail.com&mode=token`
-- `GET: /auth/email/check?token=...`
-
 > Unless you set `endpointPrefix` when creating your AuthModule
+
+- `GET: /auth/email/request?email=...&mode=...`
+- `GET: /auth/email/check?token=...`
 
 ## Dev Commands
 
