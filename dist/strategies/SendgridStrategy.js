@@ -12,7 +12,6 @@ const requiredEnvVars = ['SENDGRID_TOKEN'];
 class SendgridStrategy {
     constructor(config) {
         this.config = config;
-        this.auth = null;
     }
     //
     // AuthStrategy implementation

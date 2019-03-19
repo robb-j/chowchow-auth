@@ -12,15 +12,6 @@ exports.isEmail = (value) => /^\S+@\S+$/i.test(value);
 /** A ChowChow module to add authentication endpoints
   and add an auth jwt to the context */
 class AuthModule {
-    /** Create a new AuthModule with config and strategies */
-    constructor(config, strategies) {
-        this.app = null;
-        this.strategies = strategies;
-        this.config = config;
-        for (let strategy of this.strategies)
-            strategy.auth = this;
-        this.utils = new JwtUtils_1.JwtUtils(process.env.JWT_SECRET, this.cookieName);
-    }
     /** What path to put strategy endpoints under (default: '/auth')*/
     get endpointPrefix() {
         return this.config.endpointPrefix || '/auth';
@@ -36,6 +27,14 @@ class AuthModule {
     /** How long cookies last for, in milliseconds (default: 3 months) */
     get cookieDuration() {
         return this.config.cookieDuration || (365 / 4) * 24 * 60 * 60 * 1000;
+    }
+    /** Create a new AuthModule with config and strategies */
+    constructor(config, strategies) {
+        this.strategies = strategies;
+        this.config = config;
+        for (let strategy of this.strategies)
+            strategy.auth = this;
+        this.utils = new JwtUtils_1.JwtUtils(process.env.JWT_SECRET, this.cookieName);
     }
     //
     // Module implementation
@@ -126,8 +125,14 @@ class AuthModule {
         }
         // Remove whitespace and lower-case the email
         email = email.trim().toLowerCase();
-        // If using a whitelist, check its allowed
-        if (this.whitelist.length > 0 && !this.whitelist.includes(email)) {
+        // If using a filter, check its allowed
+        // Only check the whitelist if the filter isn't set
+        if (this.config.filter) {
+            // Fail if the email didn't pass the filter
+            if (!this.config.filter(email))
+                throw new Error(`Bad 'email'`);
+        }
+        else if (this.whitelist.length > 0 && !this.whitelist.includes(email)) {
             throw new Error(`Bad 'email'`);
         }
         return email;

@@ -6,8 +6,10 @@ export declare type AuthConfig = {
     publicUrl: string;
     endpointPrefix?: string;
     cookieName?: string;
-    whitelist?: string[];
     cookieDuration?: number;
+    filter?: (email: string) => boolean;
+    /** Deprecated in favour of `filter` */
+    whitelist?: string[];
 };
 /** An authentication jwt */
 export declare type AuthJwt = {

@@ -10,10 +10,6 @@ const path_1 = require("path");
 const requiredEnvVars = ['GOOGLE_OAUTH_CLIENT_ID', 'GOOGLE_OAUTH_CLIENT_SECRET'];
 /** An authentication strategy that verifies the client using google oauth */
 class GoogleOAuthStrategy {
-    constructor() {
-        this.auth = null;
-        this.client = null;
-    }
     //
     // AuthStrategy implementation
     //
