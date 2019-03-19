@@ -13,8 +13,11 @@ export type AuthConfig = {
   publicUrl: string
   endpointPrefix?: string
   cookieName?: string
-  whitelist?: string[]
   cookieDuration?: number
+  filter?: (email: string) => boolean
+
+  /** Deprecated in favour of `filter` */
+  whitelist?: string[]
 }
 
 /** An authentication jwt */
@@ -179,8 +182,12 @@ export class AuthModule implements Module {
     // Remove whitespace and lower-case the email
     email = email.trim().toLowerCase()
 
-    // If using a whitelist, check its allowed
-    if (this.whitelist.length > 0 && !this.whitelist.includes(email)) {
+    // If using a filter, check its allowed
+    // Only check the whitelist if the filter isn't set
+    if (this.config.filter) {
+      // Fail if the email didn't pass the filter
+      if (!this.config.filter(email)) throw new Error(`Bad 'email'`)
+    } else if (this.whitelist.length > 0 && !this.whitelist.includes(email)) {
       throw new Error(`Bad 'email'`)
     }
 

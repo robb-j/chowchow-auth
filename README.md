@@ -17,9 +17,15 @@ type Context = BaseContext & AuthContext
 ;(async () => {
   let chow = ChowChow.create<Context>()
 
+  let authConfig = {
+    loginRedir: '/',
+    publicUrl: 'https://fancydomain.io',
+    filter: email => ['me@gmail.com'].includes(email)
+  }
+
   // Apply the module
   chow.use(
-    new AuthModule({ loginRedir: '/', publicUrl: 'https://fancydomain.io' }, [
+    new AuthModule(authConfig, [
       new GoogleOAuthStrategy(),
       new SendgridStrategy({
         fromEmail: 'noreploy@mydomain.io',
@@ -108,8 +114,13 @@ And these are optional values:
 
 - `endpointPrefix` – Where to put the authentication endpoints under (default: `/auth`)
 - `cookieName` – What to call the cookie that is set, (default: `access_token`)
-- `whitelist` – A whitelist of emails that can be authenticated, (default: `[]`)
 - `cookieDuration` – How long an authorization cookie lasts for, in milliseconds (default: `3 months`)
+- `filter` – A function to check an email is allowed, (default: `null`)
+  - Its signature is `(email: string) => boolean`
+  - It won't await a value, it must be synchronous
+  - Any email passed is lower-cased and whitespace-trimmed
+
+> There is also `whitelist` (an array of allowed emails) ~ but it is deprecated.
 
 ## Strategies
 
