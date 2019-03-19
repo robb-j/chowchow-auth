@@ -18,7 +18,7 @@ const requiredEnvVars = ['SENDGRID_TOKEN']
 /** An authentication strategy that verify's a client by sending them
     an email (using sendgrid) with a link in it */
 export class SendgridStrategy implements AuthStrategy {
-  auth: AuthModule = null as any
+  auth!: AuthModule
 
   constructor(public config: SendgridConfig) {}
 

@@ -51,7 +51,7 @@ export const isEmail = (value: string) => /^\S+@\S+$/i.test(value)
 export class AuthModule implements Module {
   strategies: AuthStrategy[]
   config: AuthConfig
-  app: ChowChow = null as any
+  app!: ChowChow
   utils: JwtUtils
 
   /** What path to put strategy endpoints under (default: '/auth')*/

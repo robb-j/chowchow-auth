@@ -11,8 +11,8 @@ const requiredEnvVars = ['GOOGLE_OAUTH_CLIENT_ID', 'GOOGLE_OAUTH_CLIENT_SECRET']
 
 /** An authentication strategy that verifies the client using google oauth */
 export class GoogleOAuthStrategy implements AuthStrategy {
-  auth: AuthModule = null as any
-  client: OAuth2Client = null as any
+  auth!: AuthModule
+  client!: OAuth2Client
 
   //
   // AuthStrategy implementation
