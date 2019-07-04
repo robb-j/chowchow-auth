@@ -136,10 +136,7 @@ export class AuthModule implements Module {
   /** Hook for strategies to finish an authentication */
   finishAuth(ctx: BaseContext, emailHash: string, mode: AuthMode) {
     // Create an authentication token
-    const newToken = this.utils.jwtSign({
-      sub: emailHash,
-      typ: 'auth'
-    })
+    const newToken = this.utils.jwtSign({ typ: 'auth' }, { subject: emailHash })
 
     // Proceed baed on the mode passed
     if (mode === 'cookie') {

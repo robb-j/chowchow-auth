@@ -38,12 +38,12 @@ class JwtUtils {
         };
     }
     /** Sign a JWT payload into a string */
-    jwtSign(payload) {
-        return jsonwebtoken_1.default.sign(payload, this.secret);
+    jwtSign(payload, options) {
+        return jsonwebtoken_1.default.sign(payload, this.secret, options);
     }
     /** Verify a jwt was signed by us and return the payload */
-    jwtVerify(token) {
-        return jsonwebtoken_1.default.verify(token, this.secret);
+    jwtVerify(token, options) {
+        return jsonwebtoken_1.default.verify(token, this.secret, options);
     }
     /** one-way hash an email using sha256 */
     hashEmail(email) {

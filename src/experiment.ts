@@ -9,7 +9,6 @@ import { SendgridStrategy } from './strategies/SendgridStrategy'
 import { GoogleOAuthStrategy } from './strategies/GoogleOAuthStrategy'
 
 type Context = BaseContext & JsonEnvelopeContext & AuthContext
-// type Context = BaseContext & AuthContext
 
 // App entrypoint
 ;(async () => {

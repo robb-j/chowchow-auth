@@ -72,11 +72,15 @@ export class SendgridStrategy implements AuthStrategy {
     let email = this.auth.validateEmail(ctx.req.query.email)
 
     // Create an registration token
-    const auth = utils.jwtSign({
-      sub: utils.hashEmail(email),
-      typ: 'reg',
-      mode: mode
-    })
+    const auth = utils.jwtSign(
+      {
+        typ: 'reg',
+        mode: mode
+      },
+      {
+        subject: utils.hashEmail(email)
+      }
+    )
 
     // Generate the link (JWTs should be url safe)
     const link = this.auth.makeAbsoluteLink('email', `check?token=${auth}`)

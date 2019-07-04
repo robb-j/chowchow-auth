@@ -3,7 +3,7 @@
  */
 
 import jwtParser from 'express-jwt'
-import jwt from 'jsonwebtoken'
+import jwt, { SignOptions, VerifyOptions } from 'jsonwebtoken'
 import crypto from 'crypto'
 
 /** A class for handling jwt, just pass the secret once when created */
@@ -38,13 +38,13 @@ export class JwtUtils {
   }
 
   /** Sign a JWT payload into a string */
-  jwtSign(payload: string | Object | Buffer): string {
-    return jwt.sign(payload, this.secret)
+  jwtSign(payload: Object, options?: SignOptions): string {
+    return jwt.sign(payload, this.secret, options)
   }
 
   /** Verify a jwt was signed by us and return the payload */
-  jwtVerify(token: string): string | object {
-    return jwt.verify(token, this.secret)
+  jwtVerify(token: string, options?: VerifyOptions): string | object {
+    return jwt.verify(token, this.secret, options)
   }
 
   /** one-way hash an email using sha256 */
